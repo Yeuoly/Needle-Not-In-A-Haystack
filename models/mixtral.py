@@ -1,19 +1,20 @@
 import os
+
 from openai import OpenAI
 
 from needle_not_in_a_haystack import NeedleNotInAHaystack
 
-DEEPSEEK_API_KEY = os.environ.get("DEEPSEEK_API_KEY")
+DEEPINFRA_API_KEY = os.environ.get("DEEPINFRA_API_KEY")
 
-class DeepSeekChatNeedleNotInAHaystack(NeedleNotInAHaystack):
-    model_name = 'deepseek-chat'
-    max_batch_size = 32
+class Mixtral8x7bNeedleNotInAHaystack(NeedleNotInAHaystack):
+    model_name = 'mistralai/Mixtral-8x7B-Instruct-v0.1'
+    max_batch_size = 1024 * 2
 
     def llm(self, corpus: str, query: str) -> str:
         """
         Implement LLM invocation here.
         """
-        client = OpenAI(api_key=DEEPSEEK_API_KEY, base_url='https://api.deepseek.com')
+        client = OpenAI(api_key=DEEPINFRA_API_KEY, base_url='https://api.deepinfra.com/v1/openai')
         response = client.chat.completions.create(
             model=self.model_name,
             messages=[
@@ -28,8 +29,7 @@ class DeepSeekChatNeedleNotInAHaystack(NeedleNotInAHaystack):
                 }
             ],
             stream=False,
-            max_tokens=100,
-            temperature=0.1
+            temperature=0
         )
 
         text = response.choices[0].message.content
@@ -40,10 +40,11 @@ class DeepSeekChatNeedleNotInAHaystack(NeedleNotInAHaystack):
         """
         Return True if the response contains the needle, False otherwise
         """
+        response = response.lower()
         if 'not' in response or 'sorry' in response or 'don\'t' in response or 'haven\'t' in response:
             return False
         return True
     
-class DeepSeekCoderNeedleNotInAHaystack(DeepSeekChatNeedleNotInAHaystack):
-    model_name = 'deepseek-coder'
-    max_batch_size = 1024
+class Mixtral8x22bNeedleNotInAHaystack(Mixtral8x7bNeedleNotInAHaystack):
+    model_name = 'mistralai/Mixtral-8x22B-Instruct-v0.1'
+    max_batch_size = 1024 * 8

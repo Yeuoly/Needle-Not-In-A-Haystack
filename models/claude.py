@@ -7,7 +7,7 @@ ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY")
 class Claude2NeedleNotInAHaystack(NeedleNotInAHaystack):
     concurrence = 4
     num_tests = 10
-    batch_size = 500
+    max_batch_size = 512
     model_name = 'claude-2.1'
 
     def llm(self, corpus: str, query: str) -> str:
@@ -43,17 +43,17 @@ class Claude2NeedleNotInAHaystack(NeedleNotInAHaystack):
 class Claude3HaikuNeedleNotInAHaystack(Claude2NeedleNotInAHaystack):
     concurrence = 4
     num_tests = 20
-    batch_size = 500
+    max_batch_size = 500
     model_name = 'claude-3-haiku-20240307'
 
 class Claude3OpusNeedleNotInAHaystack(Claude2NeedleNotInAHaystack):
     concurrence = 4
     num_tests = 20
-    batch_size = 500
+    max_batch_size = 500
     model_name = 'claude-3-opus-20240229'
 
 class Claude3SonnetNeedleNotInAHaystack(Claude2NeedleNotInAHaystack):
     concurrence = 4
     num_tests = 20
-    batch_size = 500
+    max_batch_size = 500
     model_name = 'claude-3-sonnet-20240229'

@@ -1,26 +1,15 @@
 from abc import ABC, abstractmethod
 from threading import Lock, Thread
-from typing import Generator
 from random import randint
 from tqdm import tqdm
 
 from utils import generate_sentence
 
-def get_green_text(text: str) -> str:
-    """
-    Get red colored text
-
-    :param text: text to color
-
-    :return: colored text
-    """
-    return f"\033[92m{text}\033[00m"
-
 class NeedleNotInAHaystack(ABC):
     model_name = "NoneModel"
     concurrence = 10
     num_tests = 50
-    batch_size = 500
+    max_batch_size = 512
 
     @abstractmethod
     def llm(self, corpus: str, query: str) -> str:
@@ -70,11 +59,22 @@ class NeedleNotInAHaystack(ABC):
 
         return result
 
-    def test(self) -> None:
+    def test(self) -> list[tuple[int, float]]:
         """
-        Run tests, yield current test result
+        Test the model
         """
-        sets = self.generate_test_sets(self.batch_size, self.num_tests)
+        result = []
+        batch_size = 1
+        while batch_size <= self.max_batch_size:
+            accuracy = self.test_single_batch(batch_size)
+            result.append((batch_size, accuracy))
+
+            batch_size *= 2
+
+        return result
+
+    def test_single_batch(self, batch_size: int) -> float:
+        sets = self.generate_test_sets(batch_size, self.num_tests)
 
         result = {
             'right': 0,
@@ -100,7 +100,7 @@ class NeedleNotInAHaystack(ABC):
                         with lock:
                             result['wrong'] += 1
                     # set description
-                    pbar.set_description(f"{self.model_name} accuracy: \033[92m%{(result['right'] / (result['right'] + result['wrong']) * 100):.0f}\033[00m")
+                    pbar.set_description(f"{self.model_name} with {batch_size} samples, accuracy: \033[92m%{(result['right'] / (result['right'] + result['wrong']) * 100):.0f}\033[00m")
                     pbar.update(1)
                     
             threads = []
@@ -112,3 +112,5 @@ class NeedleNotInAHaystack(ABC):
 
             for thread in threads:
                 thread.join()
+
+        return result['right'] / (result['right'] + result['wrong'])

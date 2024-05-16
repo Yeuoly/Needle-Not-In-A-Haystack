@@ -10,4 +10,7 @@ if __name__ == "__main__":
 
     for model in tqdm(models):
         model_instance = model()
-        model_instance.test()
+        result = model_instance.test()
+        with open(f"results/{model_instance.model_name}.txt", "w") as f:
+            for r in result:
+                f.write(f"{r[0]},{r[1]}\n")
