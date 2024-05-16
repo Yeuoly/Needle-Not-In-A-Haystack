@@ -1,4 +1,8 @@
+import importlib
+import inspect
+import os
 import random
+from typing import TypeVar
 
 
 nouns = ["cat", "dog", "man", "woman", "boy", "girl", "bird", "car", "tree", "house", "mouse", "book", "computer", "apple", "banana", "student", "teacher", "doctor", "nurse"]
@@ -14,3 +18,19 @@ def generate_sentence():
     
     sentence = f"The {adj} {subject} {adv} {verb}."
     return sentence
+
+T = TypeVar("T")
+
+def load_models(model_path: str, parent_type: T) -> list[T]:
+    """
+    Load models from a given path.
+    """
+    models = []
+    for file in os.listdir(model_path):
+        if file.endswith(".py"):
+            module_name = file[:-3]
+            module = importlib.import_module(f"{model_path}.{module_name}")
+            for name, obj in inspect.getmembers(module):
+                if inspect.isclass(obj) and issubclass(obj, parent_type) and obj != parent_type:
+                    models.append(obj)
+    return models
