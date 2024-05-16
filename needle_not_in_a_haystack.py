@@ -51,8 +51,19 @@ class NeedleNotInAHaystack(ABC):
         Run tests, yield current test result
         """
         sets = self.generate_test_sets(300, 10)
-        
+
+        right_count = 0
+        wrong_count = 0
         for query, haystack, needle in sets:
             result = self.llm(haystack, query)
 
-            print(result)
+            test_result = 'RIGHT'
+            if 'not' in result or 'sorry' in result or 'don\'t' in result:
+                right_count += 1
+            else:
+                test_result = 'WRONG'
+                wrong_count += 1
+
+            print('[r:{}/w:{}][{}] {}'.format(right_count, wrong_count, test_result, result))
+
+        print(f"Right: {right_count}, Wrong: {wrong_count}")
