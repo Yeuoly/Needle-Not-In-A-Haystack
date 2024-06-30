@@ -57,3 +57,9 @@ class Claude3SonnetNeedleNotInAHaystack(Claude2NeedleNotInAHaystack):
     num_tests = 20
     max_batch_size = 500
     model_name = 'claude-3-sonnet-20240229'
+
+class Claude35SonnetNeedleNotInAHaystack(Claude2NeedleNotInAHaystack):
+    concurrence = 4
+    num_tests = 20
+    max_batch_size = 1024
+    model_name = 'claude-3-5-sonnet-20240620'
